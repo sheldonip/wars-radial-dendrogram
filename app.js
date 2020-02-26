@@ -1,7 +1,7 @@
 (function () {
     const genderColours = ["red", "blue"];
     d3.csv("data.csv").then(function (data) {
-        const width = 1200;
+        const width = window.innerWidth * 0.8;
         const height = 1000;
         const transitionTime = 2000;
 
@@ -70,13 +70,14 @@
         // Tree
         let tree = d3.tree()
             .size([width - margin.left - margin.right, height - margin.top - margin.bottom]);
+        let radialTreeSize = [2 * Math.PI, width / 2.5];
 
         // Cluster	
         let cluster = d3.cluster()
             .size([height - margin.top - margin.bottom, width - margin.left - margin.right]);
 
         // Set initial radial tree
-        tree.size([2 * Math.PI, height / 2.1]);
+        tree.size(radialTreeSize);
         let link = g.selectAll(".link")
             .data(tree(root).links())
             .enter().append("path")
@@ -156,7 +157,7 @@
 
         function radialTree() {
             g.transition().attr("transform", "translate(" + width / 2 + "," + height / 2 + ")").duration(transitionTime);
-            tree.size([2 * Math.PI, height / 2.1]);
+            tree.size(radialTreeSize);
             link.data(tree(root).links())
                 .transition()
                 .attr("d", d3.linkRadial()
