@@ -2,7 +2,7 @@
     const genderColours = ["red", "blue"];
     d3.csv("data.csv").then(function (data) {
         const width = window.innerWidth * 0.8;
-        const height = 1200;
+        const height = 1600;
         const transitionTime = 2000;
 
         const margin = { left: 100, top: 100, right: 50, bottom: 50 }
@@ -121,6 +121,7 @@
             .attr('y', -10)
             .attr('x', -10)
             .attr('text-anchor', 'middle');
+        toggleMode();
 
         // Interaction with button
         document.getElementById("toggle-button").onclick = function () { toggleMode() };
