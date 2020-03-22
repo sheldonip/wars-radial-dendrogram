@@ -1,7 +1,15 @@
 # 武漢肺炎確診個案關係圖
 
 # Setup
-You know how
+## Install
+```sh
+npm install
+```
+
+## Run development server
+```sh
+npm run-script start
+```
 
 # Authors
 * **Sheldon Ip** - *Initial work*

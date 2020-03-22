@@ -7,7 +7,8 @@ class Map extends Component {
         this.state = {
             root: {},
             width: window.innerWidth * 0.8,
-            height: 1200,
+            height: 2500,
+            heightForRaidalTree: 1200,
             transitionTime: 2000,
             margin: { left: 100, top: 100, right: 50, bottom: 50 },
             radialTreeSize: [2 * Math.PI, window.innerWidth * 0.8 / 2.5],
@@ -163,7 +164,8 @@ class Map extends Component {
     }
 
     horizontalTree() {
-        let g = d3.select("svg.radical").selectAll("g");
+        let svg = d3.select("svg.radical").attr("height", this.state.height);
+        let g = svg.selectAll("g");
         let tree = d3.tree();
         let node = g.selectAll(".node");
         let link = g.selectAll(".link");
@@ -182,11 +184,12 @@ class Map extends Component {
     }
 
     radialTree() {
-        let g = d3.select("svg.radical").selectAll("g");
+        let svg = d3.select("svg.radical").attr("height", this.state.heightForRaidalTree);
+        let g = svg.selectAll("g");
         let tree = d3.tree();
         let node = g.selectAll(".node");
         let link = g.selectAll(".link");
-        g.transition().attr("transform", "translate(" + this.state.width / 2 + "," + this.state.height / 2 + ")").duration(this.state.transitionTime);
+        g.transition().attr("transform", "translate(" + this.state.width / 2 + "," + this.state.heightForRaidalTree / 2 + ")").duration(this.state.transitionTime);
         tree.size(this.state.radialTreeSize);
         link.data(tree(this.state.root).links())
             .transition()
@@ -303,7 +306,7 @@ class Map extends Component {
     render() {
         return (
             <div className="radical-container">
-                <svg className="radical"></svg>
+                <svg className="radical" height="1500"></svg>
             </div>
         );
     }
