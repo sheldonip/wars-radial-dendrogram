@@ -1,6 +1,6 @@
 casenumber,parent,gender,age,cluster
--1,,,
-0,-1,,
+-1,,,,
+0,-1,,,
 1,-1,男,39
 2,-1,男,56
 3,-1,女,62
