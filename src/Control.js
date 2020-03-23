@@ -32,7 +32,7 @@ class Control extends Component {
       return (
         <div className="control-container">
           <div className="button-container">
-            <div id='button-toggle' className="button" onClick = {this.handleClick}>切換</div>
+            <div id='button-toggle' className="button" onClick = {this.handleClick}>切換圖表類型</div>
           </div>
           <div className="dropdown-container">
             <label htmlFor="dropdown-legend-type">分類:</label>

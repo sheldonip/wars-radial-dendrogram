@@ -7,11 +7,11 @@ class Map extends Component {
         this.state = {
             root: {},
             width: window.innerWidth * 0.8,
-            height: 2500,
+            height: 3000,
             heightForRaidalTree: 1200,
             transitionTime: 2000,
             margin: { left: 100, top: 100, right: 50, bottom: 50 },
-            radialTreeSize: [2 * Math.PI, window.innerWidth * 0.8 / 2.5],
+            radialTreeSize: [2 * Math.PI, window.innerWidth * 0.8 / 2],
         };
 
         this.horizontalTree = this.horizontalTree.bind(this);
@@ -189,7 +189,7 @@ class Map extends Component {
         let tree = d3.tree();
         let node = g.selectAll(".node");
         let link = g.selectAll(".link");
-        g.transition().attr("transform", "translate(" + this.state.width / 2 + "," + this.state.heightForRaidalTree / 2 + ")").duration(this.state.transitionTime);
+        g.transition().attr("transform", "translate(" + this.state.width / 3 + "," + this.state.heightForRaidalTree / 2 + ")").duration(this.state.transitionTime);
         tree.size(this.state.radialTreeSize);
         link.data(tree(this.state.root).links())
             .transition()

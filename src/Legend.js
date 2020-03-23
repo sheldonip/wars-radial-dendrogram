@@ -22,7 +22,7 @@ class Legend extends Component {
             let color = d3.scaleOrdinal(legends[type].colours);
             let svg = d3.select("svg.legend");
             const legendDotSize = 30;
-            const legendHeight = 200;
+            const legendHeight = 35 * legends.cluster.colours.length;
             
             svg.html("")
                 .attr("height", legendHeight);
