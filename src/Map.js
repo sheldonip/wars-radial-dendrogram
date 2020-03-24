@@ -16,6 +16,9 @@ class Map extends Component {
 
         this.horizontalTree = this.horizontalTree.bind(this);
         this.radialTree = this.radialTree.bind(this);
+        this.mouseout = this.mouseout.bind(this);
+        this.mouseovered = this.mouseovered.bind(this);
+        this.getAllParentIds = this.getAllParentIds.bind(this);
         this.radialPoint = this.radialPoint.bind(this);
         this.redraw = this.redraw.bind(this);
     }
@@ -66,21 +69,21 @@ class Map extends Component {
                 .data(tree(root).links())
                 .enter().append("path")
                 .attr("class", "link")
-                .attr("id", function (d) { return "link-" + d.target.id; })
+                .attr("id", (d) => { return "link-" + d.target.id; })
                 .attr("fill", "none")
                 .attr("stroke", "#ccc")
                 .attr("d", d3.linkRadial()
-                    .angle(function (d) { return d.x; })
-                    .radius(function (d) { return d.y; }));
+                    .angle((d) => { return d.x; })
+                    .radius((d) => { return d.y; }));
 
             let node = g.selectAll(".node")
                 .data(root.descendants())
                 .enter().append("g")
-                .attr("class", function (d) { return "node" + (d.children ? " node-internal" : " node-leaf"); })
-                .attr("id", function (d) { return "node-" + d.data.casenumber; })
+                .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
+                .attr("id", (d) => { return "node-" + d.data.casenumber; })
                 .attr("transform", (d) => { return "translate(" + this.radialPoint(d.x, d.y) + ")"; })
-                .on("mouseover", function (d) { mouseovered(d); })
-                .on("mouseout", function () { mouseout(); });
+                .on("mouseover", (d) => { this.mouseovered(d); })
+                .on("mouseout", () => { this.mouseout(); });
 
             node.append("circle")
                 .attr("r", 6);
@@ -106,45 +109,7 @@ class Map extends Component {
             console.log(error);
         });
 
-        function mouseovered(d) {
-            let relatedIdSet = getAllParentIds(d);
-            const isHk = relatedIdSet.has("0"), isImport = relatedIdSet.has("-1");
-            relatedIdSet.forEach(function (i) {
-                if (isHk && i === "-1") {
-                    return;
-                }
-                if (document.getElementById("node-" + i) != null) {
-                    document.getElementById("node-" + i).classList.add("node-active");
-                }
-                if (isImport && i === "0") {
-                    return;
-                }
-                if (document.getElementById("link-" + i) != null) {
-                    document.getElementById("link-" + i).classList.add("link-active");
-                }
-            });
-        }
-
-        function mouseout() {
-            let els = document.getElementsByClassName("node-active");
-            while (els.length > 0) {
-                els[0].classList.remove("node-active");
-            }
-            els = document.getElementsByClassName("link-active");
-            while (els.length > 0) {
-                els[0].classList.remove("link-active");
-            }
-        }
-
-        function getAllParentIds(d) {
-            let idSet = new Set();
-            idSet.add(d.id);
-            if (d.parent) {
-                let p = getAllParentIds(d.parent);
-                p.forEach(item => idSet.add(item));
-            }
-            return idSet;
-        }
+        
     }
 
     verticalTree() {
@@ -276,6 +241,46 @@ class Map extends Component {
         node.transition()
             .attr("transform", (d) => { return "translate(" + this.radialPoint(d.x, d.y) + ")"; })
             .duration(this.state.transitionTime);
+    }
+
+    mouseovered(d) {
+        let relatedIdSet = this.getAllParentIds(d);
+        const isHk = relatedIdSet.has("0"), isImport = relatedIdSet.has("-1");
+        relatedIdSet.forEach(function (i) {
+            if (isHk && i === "-1") {
+                return;
+            }
+            if (document.getElementById("node-" + i) != null) {
+                document.getElementById("node-" + i).classList.add("node-active");
+            }
+            if (isImport && i === "0") {
+                return;
+            }
+            if (document.getElementById("link-" + i) != null) {
+                document.getElementById("link-" + i).classList.add("link-active");
+            }
+        });
+    }
+
+    mouseout() {
+        let els = document.getElementsByClassName("node-active");
+        while (els.length > 0) {
+            els[0].classList.remove("node-active");
+        }
+        els = document.getElementsByClassName("link-active");
+        while (els.length > 0) {
+            els[0].classList.remove("link-active");
+        }
+    }
+
+    getAllParentIds(d) {
+        let idSet = new Set();
+        idSet.add(d.id);
+        if (d.parent) {
+            let p = this.getAllParentIds(d.parent);
+            p.forEach(item => idSet.add(item));
+        }
+        return idSet;
     }
 
     radialPoint(x, y) {
