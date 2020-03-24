@@ -6,7 +6,7 @@ class Map extends Component {
         super(props);
         this.state = {
             root: {},
-            width: window.innerWidth * 0.8,
+            width: Math.max(1000, window.innerWidth * 0.8),
             height: 3000,
             heightForRaidalTree: 1200,
             transitionTime: 2000,

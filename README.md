@@ -1,4 +1,5 @@
-# 武漢肺炎確診個案關係圖
+# Relationship of Hong Kong Confirmed COVID-19 (2019-nCoV) Cases
+An interactive diagram for showing the relationship of confirmed COVID-19 (2019-nCoV) cases in Hong Kong
 
 # Setup
 ## Install
@@ -10,6 +11,18 @@ npm install
 ```sh
 npm run-script start
 ```
+
+# Data
+All data are stored in `/assets/data.csv` with the following format:
+| Field name | Description |
+|---|---|
+| casenumber  | Case number |
+| parent  | Parent case number; if its parent is unknown, -1 for an import case, 0 for a local case |
+| gender  | Gender (Optional)  |
+| age | Age (Optional) |
+| cluster | Cluster name (Optional) |
+
+Case number -1 and 0 are dedictated for acting as the source of import cases and local cases.
 
 # Authors
 * **Sheldon Ip** - *Initial work*
