@@ -7,12 +7,12 @@ class Map extends Component {
         this.state = {
             root: {},
             width: Math.max(1000, window.innerWidth * 0.8),
-            height: 3000,
-            heightForRaidalTree: 1200,
             transitionTime: 2000,
             margin: { left: 100, top: 100, right: 50, bottom: 50 },
             radialTreeSize: [2 * Math.PI, window.innerWidth * 0.8 / 2],
         };
+        this.height = 3000;
+        this.heightForRaidalTree = this.height / 2.7;
 
         this.horizontalTree = this.horizontalTree.bind(this);
         this.radialTree = this.radialTree.bind(this);
@@ -29,14 +29,7 @@ class Map extends Component {
         const legends = this.props.legendData;
         d3.csv(this.props.data).then((data) => {
             const width = this.state.width;
-            const height = this.state.height;
             const margin = this.state.margin;
-
-            let svg = d3.select("svg.radical")
-                .attr("width", width)
-                .attr("height", height);
-
-            let g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
             let stratify = d3.stratify()
                 .id(function (d) { return d.casenumber; })
@@ -48,14 +41,24 @@ class Map extends Component {
                 });
             this.setState({root: root});
 
+            let cnt = root.children.length + root.children[0].children.length;
+            this.height = cnt * 13;
+            this.heightForRaidalTree = this.height/2.7;
+
+            let svg = d3.select("svg.radical")
+                .attr("width", width)
+                .attr("height", this.height);
+
+            let g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + this.height / 2 + ")");
+
             // Tree
             let tree = d3.tree()
-                .size([width - margin.left - margin.right, height - margin.top - margin.bottom]);
+                .size([width - margin.left - margin.right, this.height - margin.top - margin.bottom]);
             let radialTreeSize = this.state.radialTreeSize;
 
             // Cluster	
             d3.cluster()
-                .size([height - margin.top - margin.bottom, width - margin.left - margin.right]);
+                .size([this.height - margin.top - margin.bottom, width - margin.left - margin.right]);
 
             // Set initial radial tree
             tree.size(radialTreeSize);
@@ -150,7 +153,7 @@ class Map extends Component {
         let node = g.selectAll(".node");
         let link = g.selectAll(".link");
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
-        tree.size([this.state.width - this.state.margin.left - this.state.margin.right, this.state.height - this.state.margin.top - this.state.margin.bottom]);
+        tree.size([this.state.width - this.state.margin.left - this.state.margin.right, this.height - this.state.margin.top - this.state.margin.bottom]);
         link.data(tree(this.state.root).links())
             .transition()
             .attr("d", d3.linkVertical()
@@ -164,13 +167,13 @@ class Map extends Component {
     }
 
     horizontalTree() {
-        let svg = d3.select("svg.radical").attr("height", this.state.height);
+        let svg = d3.select("svg.radical").attr("height", this.height);
         let g = svg.selectAll("g");
         let tree = d3.tree();
         let node = g.selectAll(".node");
         let link = g.selectAll(".link");
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
-        tree.size([this.state.height - this.state.margin.top - this.state.margin.bottom, this.state.width - this.state.margin.left - this.state.margin.right]);
+        tree.size([this.height - this.state.margin.top - this.state.margin.bottom, this.state.width - this.state.margin.left - this.state.margin.right]);
         link.data(tree(this.state.root).links())
             .transition()
             .attr("d", d3.linkHorizontal()
@@ -184,12 +187,12 @@ class Map extends Component {
     }
 
     radialTree() {
-        let svg = d3.select("svg.radical").attr("height", this.state.heightForRaidalTree);
+        let svg = d3.select("svg.radical").attr("height", this.heightForRaidalTree);
         let g = svg.selectAll("g");
         let tree = d3.tree();
         let node = g.selectAll(".node");
         let link = g.selectAll(".link");
-        g.transition().attr("transform", "translate(" + this.state.width / 3 + "," + this.state.heightForRaidalTree / 2 + ")").duration(this.state.transitionTime);
+        g.transition().attr("transform", "translate(" + this.state.width / 3 + "," + this.heightForRaidalTree / 2 + ")").duration(this.state.transitionTime);
         tree.size(this.state.radialTreeSize);
         link.data(tree(this.state.root).links())
             .transition()
@@ -209,7 +212,7 @@ class Map extends Component {
         let node = g.selectAll(".node");
         let link = g.selectAll(".link");
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
-        cluster.size([this.state.height - this.state.margin.top - this.state.margin.bottom, this.state.width - this.state.margin.left - this.state.margin.right]);
+        cluster.size([this.height - this.state.margin.top - this.state.margin.bottom, this.state.width - this.state.margin.left - this.state.margin.right]);
         link
             .data(cluster(this.state.root).links())
             .transition()
@@ -233,7 +236,7 @@ class Map extends Component {
         let node = g.selectAll(".node");
         let link = g.selectAll(".link");
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
-        cluster.size([this.state.width - this.state.margin.left - this.state.margin.right, this.state.height - this.state.margin.top - this.state.margin.bottom]);
+        cluster.size([this.state.width - this.state.margin.left - this.state.margin.right, this.height - this.state.margin.top - this.state.margin.bottom]);
         link
             .data(cluster(this.state.root).links())
             .transition()
@@ -256,8 +259,8 @@ class Map extends Component {
         let cluster = d3.cluster();
         let node = g.selectAll(".node");
         let link = g.selectAll(".link");
-        g.transition().attr("transform", "translate(" + this.state.width / 2 + "," + this.state.height / 2 + ")").duration(this.state.transitionTime);
-        cluster.size([2 * Math.PI, this.state.height / 2 - 40]);
+        g.transition().attr("transform", "translate(" + this.state.width / 2 + "," + this.height / 2 + ")").duration(this.state.transitionTime);
+        cluster.size([2 * Math.PI, this.height / 2 - 40]);
 
         link
             .data(cluster(this.state.root).links())
@@ -283,6 +286,9 @@ class Map extends Component {
         const legendType = this.props.legendType;
         const legends = this.props.legendData;
         const genderColours = legends[legendType].colours;
+        if (Object.keys(this.state.root).length === 0 && this.state.root.constructor === Object) {
+            return;
+        }
         let color = d3.scaleOrdinal(genderColours);
         let g = d3.select("svg.radical g");
         switch (this.props.type) {
@@ -300,7 +306,7 @@ class Map extends Component {
                 return "grey";
             }
             return color(d.data[legends[legendType].field]);
-        });;
+        });
     }
 
     render() {
