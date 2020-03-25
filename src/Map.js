@@ -5,7 +5,6 @@ class Map extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            root: {},
             width: Math.max(1000, window.innerWidth * 0.8),
             transitionTime: 2000,
             margin: { left: 100, top: 100, right: 50, bottom: 50 },
@@ -13,8 +12,7 @@ class Map extends Component {
         };
         this.height = 3000;
         this.heightForRaidalTree = this.height / 2.7;
-
-        this.data = {};
+        this.root = {};
 
         this.horizontalTree = this.horizontalTree.bind(this);
         this.radialTree = this.radialTree.bind(this);
@@ -30,88 +28,7 @@ class Map extends Component {
     }
 
     componentDidMount() {
-        const legendType = this.props.legendType;
-        const legends = this.props.legendData;
-        d3.csv(this.props.data).then((data) => {
-            const width = this.state.width;
-            const margin = this.state.margin;
-            this.data = data;
-            let svg = d3.select("svg.radical")
-                .attr("width", width)
-                .attr("height", height);
-
-            let g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-            let stratify = d3.stratify()
-                .id(function (d) { return d.casenumber; })
-                .parentId(function (d) { return d.parent; });
-
-            let root = stratify(data)
-                .sort(function (a, b) {
-                    return (a.data[legends[legendType].field].localeCompare(b.data[legends[legendType].field]) || b.casenumber - a.casenumber);
-                });
-            this.setState({root: root});
-
-            let cnt = root.children.length + root.children[0].children.length;
-            this.height = cnt * 13;
-            this.heightForRaidalTree = this.height/2.7;
-
-            // Tree
-            let tree = d3.tree()
-                .size([width - margin.left - margin.right, this.height - margin.top - margin.bottom]);
-            let radialTreeSize = this.state.radialTreeSize;
-
-            // Cluster	
-            d3.cluster()
-                .size([this.height - margin.top - margin.bottom, width - margin.left - margin.right]);
-
-            // Set initial radial tree
-            tree.size(radialTreeSize);
-            g.selectAll(".link")
-                .data(tree(root).links())
-                .enter().append("path")
-                .attr("class", "link")
-                .attr("id", (d) => { return "link-" + d.target.id; })
-                .attr("fill", "none")
-                .attr("stroke", "#ccc")
-                .attr("d", d3.linkRadial()
-                    .angle((d) => { return d.x; })
-                    .radius((d) => { return d.y; }));
-
-            let node = g.selectAll(".node")
-                .data(root.descendants())
-                .enter().append("g")
-                .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
-                .attr("id", (d) => { return "node-" + d.data.casenumber; })
-                .attr("transform", (d) => { return "translate(" + this.radialPoint(d.x, d.y) + ")"; })
-                .on("mouseover", (d) => { this.mouseovered(d); })
-                .on("mouseout", () => { this.mouseout(); });
-
-            node.append("circle")
-                .attr("r", 6);
-
-            node.append("text")
-                .text(function (d) {
-                    switch (parseInt(d.id, 10)) {
-                        case -1:
-                            return "輸入";
-                        case 0:
-                            return "本地";
-                        default:
-                            return d.data.age + "歳" + d.data.gender + " (#" + d.data.casenumber + ")";
-                    }
-                })
-                .attr('y', -10)
-                .attr('x', -10)
-                .attr('text-anchor', 'middle');
-            this.redraw();
-            
-        }).catch(function (error) {
-            // handle error
-            console.log(error);
-        });
-
-        
+        this.redraw();
     }
 
     verticalTree() {
@@ -121,7 +38,7 @@ class Map extends Component {
         let link = g.selectAll(".link");
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
         tree.size([this.state.width - this.state.margin.left - this.state.margin.right, this.height - this.state.margin.top - this.state.margin.bottom]);
-        link.data(tree(this.state.root).links())
+        link.data(tree(this.root).links())
             .transition()
             .attr("d", d3.linkVertical()
                 .x((d) => { return d.x; })
@@ -141,7 +58,7 @@ class Map extends Component {
         let link = g.selectAll(".link");
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
         tree.size([this.height - this.state.margin.top - this.state.margin.bottom, this.state.width - this.state.margin.left - this.state.margin.right]);
-        link.data(tree(this.state.root).links())
+        link.data(tree(this.root).links())
             .transition()
             .attr("d", d3.linkHorizontal()
                 .x((d) => { return d.y; })
@@ -161,7 +78,7 @@ class Map extends Component {
         let link = g.selectAll(".link");
         g.transition().attr("transform", "translate(" + this.state.width / 3 + "," + this.heightForRaidalTree / 2 + ")").duration(this.state.transitionTime);
         tree.size(this.state.radialTreeSize);
-        link.data(tree(this.state.root).links())
+        link.data(tree(this.root).links())
             .transition()
             .attr("d", d3.linkRadial()
                 .angle(function (d) { return d.x; })
@@ -181,7 +98,7 @@ class Map extends Component {
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
         cluster.size([this.height - this.state.margin.top - this.state.margin.bottom, this.state.width - this.state.margin.left - this.state.margin.right]);
         link
-            .data(cluster(this.state.root).links())
+            .data(cluster(this.root).links())
             .transition()
             .attr("d", (d) => {
                 console.log(d);
@@ -205,7 +122,7 @@ class Map extends Component {
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
         cluster.size([this.state.width - this.state.margin.left - this.state.margin.right, this.height - this.state.margin.top - this.state.margin.bottom]);
         link
-            .data(cluster(this.state.root).links())
+            .data(cluster(this.root).links())
             .transition()
             .attr("d", (d) => {
                 console.log(d);
@@ -230,7 +147,7 @@ class Map extends Component {
         cluster.size([2 * Math.PI, this.height / 2 - 40]);
 
         link
-            .data(cluster(this.state.root).links())
+            .data(cluster(this.root).links())
             .transition()
             .attr("d", (d) => {
                 return "M" + this.radialPoint(d.source.x, d.source.y)
@@ -290,12 +207,84 @@ class Map extends Component {
     }
 
     redraw() {
-        const legendType = this.props.legendType;
-        const legends = this.props.legendData;
-        if (Object.keys(this.state.root).length === 0 && this.state.root.constructor === Object) {
+        if (Object.keys(this.props.data).length === 0 && this.props.data.constructor === Object) {
             return;
         }
-        let g = d3.select("svg.radical g");
+        const legendType = this.props.legendType;
+        const legends = this.props.legendData;
+        const data = this.props.data;
+        const width = this.state.width;
+        const margin = this.state.margin;
+
+        let stratify = d3.stratify()
+            .id(function (d) { return d.casenumber; })
+            .parentId(function (d) { return d.parent; });
+
+        let root = stratify(data)
+            .sort(function (a, b) {
+                return (a.data[legends[legendType].field].localeCompare(b.data[legends[legendType].field]) || b.casenumber - a.casenumber);
+            });
+        this.root = root;
+
+        let cnt = root.children.length + root.children[0].children.length;
+        this.height = cnt * 13;
+        this.heightForRaidalTree = this.height / 2.7;
+        let svg = d3.select("svg.radical")
+            .html("")
+            .attr("width", width)
+            .attr("height", this.height);
+
+        let g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + this.height / 2 + ")");
+
+        // Tree
+        let tree = d3.tree()
+            .size([width - margin.left - margin.right, this.height - margin.top - margin.bottom]);
+        let radialTreeSize = this.state.radialTreeSize;
+
+        // Cluster	
+        d3.cluster()
+            .size([this.height - margin.top - margin.bottom, width - margin.left - margin.right]);
+
+        // Set initial radial tree
+        tree.size(radialTreeSize);
+        g.selectAll(".link")
+            .data(tree(root).links())
+            .enter().append("path")
+            .attr("class", "link")
+            .attr("id", (d) => { return "link-" + d.target.id; })
+            .attr("fill", "none")
+            .attr("stroke", "#ccc")
+            .attr("d", d3.linkRadial()
+                .angle((d) => { return d.x; })
+                .radius((d) => { return d.y; }));
+
+        let node = g.selectAll(".node")
+            .data(root.descendants())
+            .enter().append("g")
+            .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
+            .attr("id", (d) => { return "node-" + d.data.casenumber; })
+            .attr("transform", (d) => { return "translate(" + this.radialPoint(d.x, d.y) + ")"; })
+            .on("mouseover", (d) => { this.mouseovered(d); })
+            .on("mouseout", () => { this.mouseout(); });
+
+        node.append("circle")
+            .attr("r", 6);
+
+        node.append("text")
+            .text(function (d) {
+                switch (parseInt(d.id, 10)) {
+                    case -1:
+                        return "輸入";
+                    case 0:
+                        return "本地";
+                    default:
+                        return d.data.age + "歳" + d.data.gender + " (#" + d.data.casenumber + ")";
+                }
+            })
+            .attr('y', -10)
+            .attr('x', -10)
+            .attr('text-anchor', 'middle');
+        // let g = d3.select("svg.radical g");
         switch (this.props.type) {
             case "horizontalTree":
                 this.horizontalTree();
@@ -306,7 +295,7 @@ class Map extends Component {
             default:
                 this.radialTree();
         }
-        const legendSet = Array.from(new Set(this.data.map((d) => { return d[legends[legendType].field]; })))
+        const legendSet = Array.from(new Set(data.map((d) => { return d[legends[legendType].field]; })))
                 .filter(function (el) { return el !== null && el !== ''; })
                 .sort(function (a, b) { return a.localeCompare(b); });
 

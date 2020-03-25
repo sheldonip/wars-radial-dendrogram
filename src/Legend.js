@@ -18,56 +18,61 @@ class Legend extends Component {
     redraw() {
         const type = this.props.legendType;
         const legends = this.props.legendData;
-        d3.csv(this.props.data).then(function (data) {
-            let color = d3.scaleOrdinal(legends[type].colours);
-            let svg = d3.select("svg.legend");
-            const legendDotSize = 30;
-            const legendSet = Array.from(new Set(data.map((d) => { return d[legends[type].field]; })))
-                .filter(function (el) { return el !== null && el !== ''; })
-                .sort(function (a, b) { return a.localeCompare(b); });
-            const legendHeight = 30 * legendSet.length + 60;
-            
-            svg.html("")
-                .attr("height", legendHeight);
-            // Title
-            svg.append("text")
-                .attr("x", "20")
-                .attr("y", "40")
-                .attr("class", "chart-title")
-                .text(legends[type].name);
+        const data = this.props.data;
+        if (Object.keys(data).length === 0 && data.constructor === Object) {
+            return;
+        }
 
-            let legendWrapper = svg.append("g")
-                .attr("class", "legend")
-                .attr("transform", function (d) { return "translate(20,60)"; })
+        let color = d3.scaleOrdinal(legends[type].colours);
+        let svg = d3.select("svg.legend");
+        const legendDotSize = 30;
 
-            // The text of the legend
-            let legendText = legendWrapper.selectAll("text")
-                .data(legendSet);
+        const legendSet = Array.from(new Set(data.map((d) => { return d[legends[type].field]; })))
+            .filter(function (el) { return el !== null && el !== ''; })
+            .sort(function (a, b) { return a.localeCompare(b); });
+        const legendHeight = 30 * legendSet.length + 60;
+        
+        svg.html("")
+            .attr("height", legendHeight);
+        // Title
+        svg.append("text")
+            .attr("x", "20")
+            .attr("y", "40")
+            .attr("class", "chart-title")
+            .text(legends[type].name);
 
-            legendText.enter().append("text")
-                .attr("y", function (d, i) { return i * legendDotSize + 12; })
-                .attr("x", 20)
-                .merge(legendText)
-                .text(function (d) {
-                    return d;
-                });
+        let legendWrapper = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", function (d) { return "translate(20,60)"; })
 
-            // The dots of the legend
-            let legendDot = legendWrapper.selectAll("rect")
-                .data(legendSet);
+        let colorData = Array.from(new Set(data.map((d) => { return d[legends[type].field]; })))
+            .filter(function (el) { return el !== null && el !== ''; })
+            .sort(function (a, b) { return a.localeCompare(b); });
 
-            legendDot.enter().append("rect")
-                .attr("y", function (d, i) { return i * legendDotSize; })
-                .attr("rx", legendDotSize * 0.5)
-                .attr("ry", legendDotSize * 0.5)
-                .attr("width", legendDotSize * 0.5)
-                .attr("height", legendDotSize * 0.5)
-                .merge(legendDot)
-                .style("fill", function (d) { return color(d); });
-        }).catch(function (error) {
-            // handle error
-            console.log(error);
-        });
+        // The text of the legend
+        let legendText = legendWrapper.selectAll("text")
+            .data(colorData);
+
+        legendText.enter().append("text")
+            .attr("y", function (d, i) { return i * legendDotSize + 12; })
+            .attr("x", 20)
+            .merge(legendText)
+            .text(function (d) {
+                return d;
+            });
+
+        // The dots of the legend
+        let legendDot = legendWrapper.selectAll("rect")
+            .data(colorData);
+
+        legendDot.enter().append("rect")
+            .attr("y", function (d, i) { return i * legendDotSize; })
+            .attr("rx", legendDotSize * 0.5)
+            .attr("ry", legendDotSize * 0.5)
+            .attr("width", legendDotSize * 0.5)
+            .attr("height", legendDotSize * 0.5)
+            .merge(legendDot)
+            .style("fill", function (d) { return color(d); });
     }
 
     render() {
