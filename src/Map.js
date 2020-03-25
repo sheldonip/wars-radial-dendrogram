@@ -14,6 +14,8 @@ class Map extends Component {
             radialTreeSize: [2 * Math.PI, window.innerWidth * 0.8 / 2],
         };
 
+        this.data = {};
+
         this.horizontalTree = this.horizontalTree.bind(this);
         this.radialTree = this.radialTree.bind(this);
         this.radialPoint = this.radialPoint.bind(this);
@@ -31,7 +33,7 @@ class Map extends Component {
             const width = this.state.width;
             const height = this.state.height;
             const margin = this.state.margin;
-
+            this.data = data;
             let svg = d3.select("svg.radical")
                 .attr("width", width)
                 .attr("height", height);
@@ -282,8 +284,6 @@ class Map extends Component {
     redraw() {
         const legendType = this.props.legendType;
         const legends = this.props.legendData;
-        const genderColours = legends[legendType].colours;
-        let color = d3.scaleOrdinal(genderColours);
         let g = d3.select("svg.radical g");
         switch (this.props.type) {
             case "horizontalTree":
@@ -295,12 +295,20 @@ class Map extends Component {
             default:
                 this.radialTree();
         }
-        g.selectAll(".node circle").attr("fill", function (d) {
+        const legendSet = Array.from(new Set(this.data.map((d) => { return d[legends[legendType].field]; })))
+                .filter(function (el) { return el !== null && el !== ''; })
+                .sort(function (a, b) { return a.localeCompare(b); });
+
+        g.selectAll(".node circle").attr("fill", (d) => {
             if (d.data[legends[legendType].field] === "") {
                 return "grey";
             }
-            return color(d.data[legends[legendType].field]);
-        });;
+            let idx = legendSet.indexOf(d.data[legends[legendType].field]);
+            if (idx >= legends[legendType].colours.length) {
+                idx = idx % legends[legendType].colours.length;
+            }
+            return legends[legendType].colours[idx];
+        });
     }
 
     render() {

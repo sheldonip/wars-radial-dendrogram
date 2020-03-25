@@ -22,7 +22,10 @@ class Legend extends Component {
             let color = d3.scaleOrdinal(legends[type].colours);
             let svg = d3.select("svg.legend");
             const legendDotSize = 30;
-            const legendHeight = 35 * legends.cluster.colours.length;
+            const legendSet = Array.from(new Set(data.map((d) => { return d[legends[type].field]; })))
+                .filter(function (el) { return el !== null && el !== ''; })
+                .sort(function (a, b) { return a.localeCompare(b); });
+            const legendHeight = 30 * legendSet.length + 60;
             
             svg.html("")
                 .attr("height", legendHeight);
@@ -37,13 +40,9 @@ class Legend extends Component {
                 .attr("class", "legend")
                 .attr("transform", function (d) { return "translate(20,60)"; })
 
-            let colorData = Array.from(new Set(data.map((d) => { return d[legends[type].field]; })))
-                .filter(function (el) { return el !== null && el !== ''; })
-                .sort(function (a, b) { return a.localeCompare(b); });
-
             // The text of the legend
             let legendText = legendWrapper.selectAll("text")
-                .data(colorData);
+                .data(legendSet);
 
             legendText.enter().append("text")
                 .attr("y", function (d, i) { return i * legendDotSize + 12; })
@@ -55,7 +54,7 @@ class Legend extends Component {
 
             // The dots of the legend
             let legendDot = legendWrapper.selectAll("rect")
-                .data(colorData);
+                .data(legendSet);
 
             legendDot.enter().append("rect")
                 .attr("y", function (d, i) { return i * legendDotSize; })
