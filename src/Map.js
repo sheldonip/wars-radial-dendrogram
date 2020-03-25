@@ -14,6 +14,8 @@ class Map extends Component {
         this.height = 3000;
         this.heightForRaidalTree = this.height / 2.7;
 
+        this.data = {};
+
         this.horizontalTree = this.horizontalTree.bind(this);
         this.radialTree = this.radialTree.bind(this);
         this.mouseout = this.mouseout.bind(this);
@@ -33,6 +35,12 @@ class Map extends Component {
         d3.csv(this.props.data).then((data) => {
             const width = this.state.width;
             const margin = this.state.margin;
+            this.data = data;
+            let svg = d3.select("svg.radical")
+                .attr("width", width)
+                .attr("height", height);
+
+            let g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
             let stratify = d3.stratify()
                 .id(function (d) { return d.casenumber; })
@@ -47,12 +55,6 @@ class Map extends Component {
             let cnt = root.children.length + root.children[0].children.length;
             this.height = cnt * 13;
             this.heightForRaidalTree = this.height/2.7;
-
-            let svg = d3.select("svg.radical")
-                .attr("width", width)
-                .attr("height", this.height);
-
-            let g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + this.height / 2 + ")");
 
             // Tree
             let tree = d3.tree()
@@ -290,11 +292,9 @@ class Map extends Component {
     redraw() {
         const legendType = this.props.legendType;
         const legends = this.props.legendData;
-        const genderColours = legends[legendType].colours;
         if (Object.keys(this.state.root).length === 0 && this.state.root.constructor === Object) {
             return;
         }
-        let color = d3.scaleOrdinal(genderColours);
         let g = d3.select("svg.radical g");
         switch (this.props.type) {
             case "horizontalTree":
@@ -306,11 +306,19 @@ class Map extends Component {
             default:
                 this.radialTree();
         }
-        g.selectAll(".node circle").attr("fill", function (d) {
+        const legendSet = Array.from(new Set(this.data.map((d) => { return d[legends[legendType].field]; })))
+                .filter(function (el) { return el !== null && el !== ''; })
+                .sort(function (a, b) { return a.localeCompare(b); });
+
+        g.selectAll(".node circle").attr("fill", (d) => {
             if (d.data[legends[legendType].field] === "") {
                 return "grey";
             }
-            return color(d.data[legends[legendType].field]);
+            let idx = legendSet.indexOf(d.data[legends[legendType].field]);
+            if (idx >= legends[legendType].colours.length) {
+                idx = idx % legends[legendType].colours.length;
+            }
+            return legends[legendType].colours[idx];
         });
     }
 

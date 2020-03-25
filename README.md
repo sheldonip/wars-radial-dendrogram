@@ -17,12 +17,12 @@ All data are stored in `/assets/data.csv` with the following format:
 | Field name | Description |
 |---|---|
 | casenumber  | Case number |
-| parent  | Parent case number; if its parent is unknown, -1 for an import case, 0 for a local case |
+| parent  | Parent case number; if its parent is unknown, -1 for an imported case, 0 for a local case |
 | gender  | Gender (Optional)  |
 | age | Age (Optional) |
 | cluster | Cluster name (Optional) |
 
-Case number -1 and 0 are dedictated for acting as the source of import cases and local cases.
+Case number -1 and 0 are dedictated for acting as the source of imported cases and local cases.
 
 # Authors
 * **Sheldon Ip** - *Initial work*
