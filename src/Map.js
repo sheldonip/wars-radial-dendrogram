@@ -20,6 +20,7 @@ class Map extends Component {
         this.mouseovered = this.mouseovered.bind(this);
         this.getAllParentIds = this.getAllParentIds.bind(this);
         this.radialPoint = this.radialPoint.bind(this);
+        this.generateNodeText = this.generateNodeText.bind(this);
         this.redraw = this.redraw.bind(this);
     }
 
@@ -40,14 +41,30 @@ class Map extends Component {
         tree.size([this.state.width - this.state.margin.left - this.state.margin.right, this.height - this.state.margin.top - this.state.margin.bottom]);
         link.data(tree(this.root).links())
             .transition()
+            .attr("id", (d) => { return "link-" + d.target.id; })
             .attr("d", d3.linkVertical()
                 .x((d) => { return d.x; })
                 .y((d) => { return d.y; }))
             .duration(this.state.transitionTime);
 
-        node.transition()
+        node.data(this.root.descendants())
+            .transition()
+            .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
+            .attr("id", (d) => { return "node-" + d.data.casenumber; })
             .attr("transform", (d) => { return "translate(" + d.x + "," + d.y + ")"; })
             .duration(this.state.transitionTime)
+
+        node.html("")
+            .append("circle")
+            .attr("r", 6);
+
+        node.append("text")
+            .text((d) => this.generateNodeText(d))
+            .attr("class", "node-text")
+            .attr("id", (d) => { return "node-text-" + d.data.casenumber; })
+            .attr('y', -10)
+            .attr('x', -10)
+            .attr('text-anchor', 'middle');
     }
 
     horizontalTree() {
@@ -60,14 +77,30 @@ class Map extends Component {
         tree.size([this.height - this.state.margin.top - this.state.margin.bottom, this.state.width - this.state.margin.left - this.state.margin.right]);
         link.data(tree(this.root).links())
             .transition()
+            .attr("id", (d) => { return "link-" + d.target.id; })
             .attr("d", d3.linkHorizontal()
                 .x((d) => { return d.y; })
                 .y((d) => { return d.x; }))
             .duration(this.state.transitionTime);
 
-        node.transition()
+        node.data(this.root.descendants())
+            .transition()
+            .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
+            .attr("id", (d) => { return "node-" + d.data.casenumber; })
             .attr("transform", (d) => { return "translate(" + d.y + "," + d.x + ")"; })
             .duration(this.state.transitionTime);
+
+        node.html("")
+            .append("circle")
+            .attr("r", 6);
+
+        node.append("text")
+            .text((d) => this.generateNodeText(d))
+            .attr("class", "node-text")
+            .attr("id", (d) => { return "node-text-" + d.data.casenumber; })
+            .attr('y', -10)
+            .attr('x', -10)
+            .attr('text-anchor', 'middle');
     }
 
     radialTree() {
@@ -80,14 +113,31 @@ class Map extends Component {
         tree.size(this.state.radialTreeSize);
         link.data(tree(this.root).links())
             .transition()
+            .attr("id", (d) => { return "link-" + d.target.id; })
             .attr("d", d3.linkRadial()
                 .angle(function (d) { return d.x; })
                 .radius(function (d) { return d.y; }))
             .duration(this.state.transitionTime);
 
-        node.transition()
+        node.data(this.root.descendants())
+            .transition()
+            .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
+            .attr("id", (d) => { return "node-" + d.data.casenumber; })
             .attr("transform", (d) => { return "translate(" + this.radialPoint(d.x, d.y) + ")"; })
             .duration(this.state.transitionTime);
+        
+
+        node.html("")
+            .append("circle")
+            .attr("r", 6);
+
+        node.append("text")
+            .text((d) => this.generateNodeText(d))
+            .attr("class", "node-text")
+            .attr("id", (d) => { return "node-text-" + d.data.casenumber; })
+            .attr('y', -10)
+            .attr('x', -10)
+            .attr('text-anchor', 'middle');
     }
 
     horizontalCluster() {
@@ -97,11 +147,10 @@ class Map extends Component {
         let link = g.selectAll(".link");
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
         cluster.size([this.height - this.state.margin.top - this.state.margin.bottom, this.state.width - this.state.margin.left - this.state.margin.right]);
-        link
-            .data(cluster(this.root).links())
+        link.data(cluster(this.root).links())
             .transition()
+            .attr("id", (d) => { return "link-" + d.target.id; })
             .attr("d", (d) => {
-                console.log(d);
                 return "M" + d.source.y + "," + d.source.x
                     + "C" + (d.source.y + 100) + "," + d.source.x
                     + " " + (d.source.y + 100) + "," + d.target.x
@@ -109,9 +158,24 @@ class Map extends Component {
             })
             .duration(this.state.transitionTime)
 
-        node.transition()
+        node.data(this.root.descendants())
+            .transition()
+            .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
+            .attr("id", (d) => { return "node-" + d.data.casenumber; })
             .attr("transform", (d) => { return "translate(" + d.y + "," + d.x + ")"; })
             .duration(this.state.transitionTime);
+        
+        node.html("")
+            .append("circle")
+            .attr("r", 6);
+
+        node.append("text")
+            .text((d) => this.generateNodeText(d))
+            .attr("class", "node-text")
+            .attr("id", (d) => { return "node-text-" + d.data.casenumber; })
+            .attr('y', -10)
+            .attr('x', -10)
+            .attr('text-anchor', 'middle');
     }
 
     verticalCluster() {
@@ -121,11 +185,10 @@ class Map extends Component {
         let link = g.selectAll(".link");
         g.transition().attr("transform", 'translate(' + this.state.margin.left + ',' + this.state.margin.right + ')').duration(this.state.transitionTime);
         cluster.size([this.state.width - this.state.margin.left - this.state.margin.right, this.height - this.state.margin.top - this.state.margin.bottom]);
-        link
-            .data(cluster(this.root).links())
+        link.data(cluster(this.root).links())
             .transition()
+            .attr("id", (d) => { return "link-" + d.target.id; })
             .attr("d", (d) => {
-                console.log(d);
                 return "M" + d.source.x + "," + d.source.y
                     + "C" + d.source.x + "," + (d.source.y + 60)
                     + " " + d.target.x + "," + (d.source.y + 60)
@@ -133,9 +196,24 @@ class Map extends Component {
             })
             .duration(this.state.transitionTime)
 
-        node.transition()
+        node.data(this.root.descendants())
+            .transition()
+            .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
+            .attr("id", (d) => { return "node-" + d.data.casenumber; })
             .attr("transform", (d) => { return "translate(" + d.x + "," + d.y + ")"; })
             .duration(this.state.transitionTime);
+        
+        node.html("")
+            .append("circle")
+            .attr("r", 6);
+
+        node.append("text")
+            .text((d) => this.generateNodeText(d))
+            .attr("class", "node-text")
+            .attr("id", (d) => { return "node-text-" + d.data.casenumber; })
+            .attr('y', -10)
+            .attr('x', -10)
+            .attr('text-anchor', 'middle');
     }
 
     radialCluster() {
@@ -146,9 +224,9 @@ class Map extends Component {
         g.transition().attr("transform", "translate(" + this.state.width / 2 + "," + this.height / 2 + ")").duration(this.state.transitionTime);
         cluster.size([2 * Math.PI, this.height / 2 - 40]);
 
-        link
-            .data(cluster(this.root).links())
+        link.data(cluster(this.root).links())
             .transition()
+            .attr("id", (d) => { return "link-" + d.target.id; })
             .attr("d", (d) => {
                 return "M" + this.radialPoint(d.source.x, d.source.y)
                     + "C" + this.radialPoint(d.source.x, (d.target.y + d.source.y) / 2)
@@ -157,9 +235,24 @@ class Map extends Component {
             })
             .duration(this.state.transitionTime)
 
-        node.transition()
+        node.data(this.root.descendants())
+            .transition()
+            .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
+            .attr("id", (d) => { return "node-" + d.data.casenumber; })
             .attr("transform", (d) => { return "translate(" + this.radialPoint(d.x, d.y) + ")"; })
             .duration(this.state.transitionTime);
+        
+        node.html("")
+            .append("circle")
+            .attr("r", 6);
+
+        node.append("text")
+            .text((d) => this.generateNodeText(d))
+            .attr("class", "node-text")
+            .attr("id", (d) => { return "node-text-" + d.data.casenumber; })
+            .attr('y', -10)
+            .attr('x', -10)
+            .attr('text-anchor', 'middle');
     }
 
     mouseovered(d) {
@@ -206,6 +299,17 @@ class Map extends Component {
         return [(y = +y) * Math.cos(x -= Math.PI / 2), y * Math.sin(x)];
     }
 
+    generateNodeText(d) {
+        switch (parseInt(d.id, 10)) {
+            case -1:
+                return "輸入";
+            case 0:
+                return "本地";
+            default:
+                return d.data.age + "歳" + d.data.gender + " (#" + d.data.casenumber + ")";
+        }
+    }
+
     redraw() {
         if (Object.keys(this.props.data).length === 0 && this.props.data.constructor === Object) {
             return;
@@ -230,61 +334,48 @@ class Map extends Component {
         this.height = cnt * 13;
         this.heightForRaidalTree = this.height / 2.7;
         let svg = d3.select("svg.radical")
-            .html("")
             .attr("width", width)
             .attr("height", this.height);
 
-        let g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + this.height / 2 + ")");
+        let g;
+        if (d3.select("svg.radical g").empty()) {
+            g = svg.append("g")
+                .attr("transform", "translate(" + width / 2 + "," + this.height / 2 + ")");
 
-        // Tree
-        let tree = d3.tree()
-            .size([width - margin.left - margin.right, this.height - margin.top - margin.bottom]);
-        let radialTreeSize = this.state.radialTreeSize;
-
-        // Cluster	
-        d3.cluster()
-            .size([this.height - margin.top - margin.bottom, width - margin.left - margin.right]);
-
-        // Set initial radial tree
-        tree.size(radialTreeSize);
-        g.selectAll(".link")
-            .data(tree(root).links())
-            .enter().append("path")
-            .attr("class", "link")
-            .attr("id", (d) => { return "link-" + d.target.id; })
-            .attr("fill", "none")
-            .attr("stroke", "#ccc")
-            .attr("d", d3.linkRadial()
-                .angle((d) => { return d.x; })
-                .radius((d) => { return d.y; }));
-
-        let node = g.selectAll(".node")
-            .data(root.descendants())
-            .enter().append("g")
-            .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
-            .attr("id", (d) => { return "node-" + d.data.casenumber; })
-            .attr("transform", (d) => { return "translate(" + this.radialPoint(d.x, d.y) + ")"; })
-            .on("mouseover", (d) => { this.mouseovered(d); })
-            .on("mouseout", () => { this.mouseout(); });
-
-        node.append("circle")
-            .attr("r", 6);
-
-        node.append("text")
-            .text(function (d) {
-                switch (parseInt(d.id, 10)) {
-                    case -1:
-                        return "輸入";
-                    case 0:
-                        return "本地";
-                    default:
-                        return d.data.age + "歳" + d.data.gender + " (#" + d.data.casenumber + ")";
-                }
-            })
-            .attr('y', -10)
-            .attr('x', -10)
-            .attr('text-anchor', 'middle');
-        // let g = d3.select("svg.radical g");
+            // Tree
+            let tree = d3.tree()
+                .size([width - margin.left - margin.right, this.height - margin.top - margin.bottom]);
+            let radialTreeSize = this.state.radialTreeSize;
+    
+            // Cluster	
+            d3.cluster()
+                .size([this.height - margin.top - margin.bottom, width - margin.left - margin.right]);
+    
+            // Set initial radial tree
+            tree.size(radialTreeSize);
+            g.selectAll(".link")
+                .data(tree(root).links())
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("id", (d) => { return "link-" + d.target.id; })
+                .attr("fill", "none")
+                .attr("stroke", "#ccc")
+                .attr("d", d3.linkRadial()
+                    .angle((d) => { return d.x; })
+                    .radius((d) => { return d.y; }));
+    
+            g.selectAll(".node")
+                .data(root.descendants())
+                .enter().append("g")
+                .attr("class", (d) => { return "node" + (d.children ? " node-internal" : " node-leaf"); })
+                .attr("id", (d) => { return "node-" + d.data.casenumber; })
+                .attr("transform", (d) => { return "translate(" + this.radialPoint(d.x, d.y) + ")"; })
+                .on("mouseover", (d) => { this.mouseovered(d); })
+                .on("mouseout", () => { this.mouseout(); });
+        } else {
+            g = d3.select("svg.radical")
+                .selectAll("g");
+        }
         switch (this.props.type) {
             case "horizontalTree":
                 this.horizontalTree();
