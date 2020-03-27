@@ -331,8 +331,8 @@ class Map extends Component {
         this.root = root;
 
         let cnt = root.children.length + root.children[0].children.length;
-        this.height = cnt * 13;
-        this.heightForRaidalTree = this.height / 2.7;
+        this.height = cnt * 20;
+        this.heightForRaidalTree = 1400;
         let svg = d3.select("svg.radical")
             .attr("width", width)
             .attr("height", this.height);
