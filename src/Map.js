@@ -392,7 +392,7 @@ class Map extends Component {
 
         g.selectAll(".node circle").attr("fill", (d) => {
             if (d.data[legends[legendType].field] === "") {
-                return "grey";
+                return "#ccc";
             }
             let idx = legendSet.indexOf(d.data[legends[legendType].field]);
             if (idx >= legends[legendType].colours.length) {
