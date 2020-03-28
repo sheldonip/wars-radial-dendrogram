@@ -13,16 +13,23 @@ npm run-script start
 ```
 
 # Data
-All data are stored in `/assets/data.csv` with the following format:
+Data originated from [data.gov.hk](https://data.gov.hk/tc-data/dataset/hk-dh-chpsebcddr-novel-infectious-agent).  
+All enriched data are stored in `/assets/data.csv` with the following format:
 | Field name | Description |
 |---|---|
 | casenumber  | Case number |
-| parent  | Parent case number; if its parent is unknown, -1 for an imported case, 0 for a local case |
+| reportdate  | Report date |
+| onsetdate  | Date of onset (Optional) |
 | gender  | Gender (Optional)  |
 | age | Age (Optional) |
+| hospital | Name of hospital admitted (Optional) |
+| residency | Residency (Optional) |
+| classification | Case classification (Optional) |
+| parent  | Parent case number; if its parent is unknown, -1 for an imported case, 0 for a local case |
 | cluster | Cluster name (Optional) |
 
-Case number -1 and 0 are dedictated for acting as the source of imported cases and local cases.
+Case number -1 and 0 are dedictated for acting as the source of imported cases and local cases.  
+Relationship is based on contact only
 
 # Authors
 * **Sheldon Ip** - *Initial work*
