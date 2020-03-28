@@ -331,8 +331,8 @@ class Map extends Component {
         this.root = root;
 
         let cnt = root.children.length + root.children[0].children.length;
-        this.height = cnt * 16;
-        this.heightForRaidalTree = this.height / 2.7;
+        this.height = cnt * 20;
+        this.heightForRaidalTree = 1600;
         let svg = d3.select("svg.radical")
             .attr("width", width)
             .attr("height", this.height);
@@ -392,7 +392,7 @@ class Map extends Component {
 
         g.selectAll(".node circle").attr("fill", (d) => {
             if (d.data[legends[legendType].field] === "") {
-                return "grey";
+                return "#ccc";
             }
             let idx = legendSet.indexOf(d.data[legends[legendType].field]);
             if (idx >= legends[legendType].colours.length) {
